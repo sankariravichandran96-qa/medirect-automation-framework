@@ -1,1 +1,0 @@
-CRUD cycle complete. Booking 387 confirmed deleted.
