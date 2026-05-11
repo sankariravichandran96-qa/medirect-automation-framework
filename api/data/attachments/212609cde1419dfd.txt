@@ -1,1 +1,0 @@
-CRUD cycle complete. Booking 2070 confirmed deleted.
