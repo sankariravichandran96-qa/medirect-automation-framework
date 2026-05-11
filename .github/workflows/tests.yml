@@ -1,0 +1,91 @@
+name: Restful Booker — API & UI Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 8 * * *'    # Runs daily at 08:00 UTC
+  workflow_dispatch:        # Allows manual run from GitHub Actions tab
+
+jobs:
+  # ── JOB 1: API Tests (Task 2) ─────────────────────────────────────────────
+  api-tests:
+    name: API Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright (API tests need no browser)
+        run: npx playwright install --with-deps chromium
+
+      - name: Run API tests
+        env:
+          BASE_URL:        https://restful-booker.herokuapp.com
+          BOOKER_USERNAME: admin
+          BOOKER_PASSWORD: password123
+        run: npm run test:api
+
+      - name: Upload Playwright HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-test-report
+          path: playwright-report/
+          retention-days: 30
+
+  # ── JOB 2: UI Tests (Task 3) ──────────────────────────────────────────────
+  ui-tests:
+    name: UI End-to-End Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run UI tests
+        env:
+          UI_BASE_URL: https://www.medirect.com.mt
+        run: npm run test:ui
+
+      - name: Upload Playwright HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-test-report
+          path: playwright-report/
+          retention-days: 30
+
+      - name: Upload screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-failure-screenshots
+          path: test-results/
+          retention-days: 7
