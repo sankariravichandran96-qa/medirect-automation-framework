@@ -19,9 +19,9 @@ export default defineConfig({
   ],
 
   use: {
-    ...devices['Desktop Chrome'],
     baseURL:    Config.ui.baseUrl,
-    headless:   true,
+    headless:   process.env.CI === 'true',
+    viewport:   { width: 1920, height: 1080 },
     screenshot: 'only-on-failure',
     video:      'retain-on-failure',
     trace:      'retain-on-failure'

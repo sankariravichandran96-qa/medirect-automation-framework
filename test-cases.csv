@@ -1,0 +1,51 @@
+TC ID,Module,Test Type,Priority,Test Case Name,Preconditions,Test Steps,Expected Result,Automation Status
+TC-API-01,API - Auth,Positive,P1,Health check endpoint returns 201 Created,API is reachable at https://restful-booker.herokuapp.com,1. Send GET /ping,HTTP 201 Created — service is up and healthy,Automated
+TC-API-02,API - Auth,Positive,P1,Valid credentials return a non-empty authentication token,API is reachable,"1. POST /auth with username=admin and password=password123
+2. Parse the response body","HTTP 200; response body contains a non-empty string token",Automated
+TC-API-03,API - CRUD,Positive,P1,Create booking returns 200 and a valid booking ID,API is reachable,"1. POST /booking with valid firstname, lastname, totalprice, depositpaid and bookingdates
+2. Parse response body","HTTP 200; response body contains bookingid greater than 0",Automated
+TC-API-04,API - CRUD,Positive,P1,Get booking returns the correct guest data,A booking with a known ID exists,"1. GET /booking/:id
+2. Parse response body","HTTP 200; response body matches the exact firstname, lastname, totalprice and depositpaid used at creation; bookingdates contains checkin and checkout fields",Automated
+TC-API-05,API - CRUD,Positive,P2,Get all bookings list contains the newly created booking ID,A booking with a known ID exists,1. GET /booking,"HTTP 200; response is a non-empty array; the known bookingid appears in the list",Automated
+TC-API-06,API - CRUD,Positive,P1,Full update (PUT) returns all updated fields,A booking exists and a valid auth token is cached,"1. PUT /booking/:id with new firstname, lastname, totalprice, depositpaid=false and new bookingdates
+2. Pass Cookie: token=<token> header","HTTP 200; response body reflects every updated field exactly",Automated
+TC-API-07,API - CRUD,Positive,P2,Partial update (PATCH) returns only the patched fields changed,A booking exists and a valid auth token is cached,"1. PATCH /booking/:id with only firstname and totalprice
+2. Pass Cookie: token=<token> header","HTTP 200; firstname and totalprice match patched values; lastname is unchanged and still a non-empty string",Automated
+TC-API-08,API - CRUD,Positive,P1,Delete booking returns 201 Created,A booking exists and a valid auth token is cached,"1. DELETE /booking/:id
+2. Pass Cookie: token=<token> header",HTTP 201 Created — booking successfully deleted,Automated
+TC-API-09,API - CRUD,Positive,P1,Get deleted booking returns 404 Not Found,The booking was deleted in the previous step,1. GET /booking/:id using the same ID that was deleted,HTTP 404 Not Found — confirms booking no longer exists,Automated
+TC-API-10,API - Negative,Negative,P2,GET a non-existent booking ID returns 404 Not Found,API is reachable,1. GET /booking/999999999,HTTP 404 Not Found,Automated
+TC-API-11,API - Negative,Negative,P1,DELETE without an auth token returns 403 Forbidden,API is reachable,"1. POST /booking to create a temporary booking (record its ID)
+2. DELETE /booking/:id with no token or cookie header
+3. DELETE /booking/:id with a valid token to clean up","Step 2 returns HTTP 403 Forbidden; unauthenticated delete is rejected",Automated
+TC-API-12,API - Negative,Negative,P2,Create booking with missing required fields returns 500,API is reachable,1. POST /booking with only the firstname field (all other required fields omitted),HTTP 500 Internal Server Error — server cannot process an incomplete booking payload,Automated
+TC-UI-01,UI - Navigation,Positive,P1,Equities search page loads with the Equities tab active and shows results,"Browser can reach https://www.medirect.com.mt
+Cookie banner may appear on first load","1. Navigate to /invest/equities/search/
+2. Dismiss cookie banner if shown
+3. Wait for results to render","URL contains /invest/equities/search; at least one EQ row is visible in the results table",Automated
+TC-UI-02,UI - Navigation,Positive,P2,Clicking the Funds tab navigates to the Funds section,Equities search page is loaded,"1. Click the FND Funds tab
+2. Wait for page load",URL changes to contain the word fund,Automated
+TC-UI-03,UI - Navigation,Positive,P2,Clicking the ETFs tab navigates to the ETFs section,Equities search page is loaded,"1. Click the ETF ETFs tab
+2. Wait for page load",URL changes to contain the word etf,Automated
+TC-UI-04,UI - Navigation,Positive,P2,Clicking the Bonds tab navigates to the Bonds section,Equities search page is loaded,"1. Click the BND Bonds tab
+2. Wait for page load",URL changes to contain the word bond,Automated
+TC-UI-05,UI - Search,Positive,P1,Searching for Apple returns at least one matching equity row,Equities search page is loaded,"1. Click the search input
+2. Type Apple
+3. Wait for search debounce and network idle","At least one EQ row is returned in the results table",Automated
+TC-UI-06,UI - Search,Positive,P1,Clicking More Information on an equity row navigates to the security detail page,Apple search results are visible,"1. Search for Apple
+2. Click the More Information button on the APPLE INC row
+3. Wait for the detail page to load","URL contains /stocksreports/; security detail page is loaded",Automated
+TC-UI-07,UI - Search,Negative,P2,Searching for a non-existent equity term returns an empty results list,Equities search page is loaded,"1. Type XYZABCD1234NOTREAL into the search box
+2. Wait for search debounce and network idle",Zero EQ rows are returned in the results table,Automated
+TC-UI-08,UI - Security Details,Positive,P1,Registration banner with Become a customer CTA is visible to public users,"User is not logged in
+Security detail page is loaded via the More Information flow","1. Check if the full-functionality banner is visible
+2. Check if the Become a customer link is visible inside the banner","Banner text Do you want to start using the full functionality for FREE? is visible; Become a customer link is visible within the banner",Automated
+TC-UI-09,UI - Security Details,Positive,P2,Overview section shows all 9 financial fields locked for unauthenticated users,Security detail page is loaded and user is not logged in,"1. Scroll to the Overview section
+2. Verify the Overview heading is visible
+3. Check each of the 9 fields: Last Close, RoE, Mkt Cap, Dividend Yield, Exchange, PE, Volume, Net Margin, Price/Sales","Overview heading is visible; all 9 fields are present and each shows a lock icon indicating restricted access",Automated
+TC-UI-10,UI - Security Details,Positive,P2,Bottom CTA section shows sign-up prompt to unauthenticated users,Security detail page is loaded and user is not logged in,"1. Scroll to the bottom of the page
+2. Verify the Experience better Investing heading is visible
+3. Verify the Become a client button is visible
+4. Verify the sign-up invitation text is visible","Experience better Investing heading is visible; Become a client button is visible; Sign up and open your account for free within minutes text is visible",Automated
+TC-UI-11,UI - Security Details,Positive,P1,Price area shows a lock icon instead of live data and back-navigation link is available,Security detail page is loaded and user is not logged in,"1. Check for the lock icon in the price and percentage area
+2. Check for the Back to search results link","Lock icon is visible in the price area; Back to search results link pointing to /invest/equities/search/ is visible",Automated

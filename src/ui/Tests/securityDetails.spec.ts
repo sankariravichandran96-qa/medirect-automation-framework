@@ -4,7 +4,7 @@ import { EquitiesSearchPage } from '../pages/EquitiesSearchPage';
 import { SecurityDetailPage } from '../pages/SecurityDetailPage';
 import { UITestData } from '../../Common/uiTestData';
 
-test.describe('Security Details — Restricted Content for Public Users', () => {
+test.describe('Security Details are Restricted Content for Public Users', () => {
 
   test.describe.configure({ mode: 'serial' });
 
@@ -22,11 +22,11 @@ test.describe('Security Details — Restricted Content for Public Users', () => 
     await detailPage.waitForLoad();
   });
 
-  test('TC01 - Detail page shows full-functionality prompt to unauthenticated users',
+  test('TC01 - Detail page shows full-functionality prompt to public users',
     async () => {
       await epic('MeDirect Equities Platform');
       await feature('Security Detail Page — Restricted Access');
-      await story('TC01 - Unauthenticated users see the registration banner');
+      await story('TC01 - Public users see the registration banner');
       await severity('critical');
       await label('priority', 'P1');
       await description(
@@ -101,7 +101,7 @@ test.describe('Security Details — Restricted Content for Public Users', () => 
       });
     });
 
-  test('TC03 - Bottom of the page shows a sign-up call-to-action',
+  test('TC03 - Validate Become a client CTA for public users',
     async () => {
       await epic('MeDirect Equities Platform');
       await feature('Security Detail Page — Restricted Access');
@@ -126,7 +126,7 @@ test.describe('Security Details — Restricted Content for Public Users', () => 
         await expect(detailPage.becomeClientButton).toBeVisible();
       });
 
-      await test.step('Verify the sign-up invitation text is present', async () => {
+      await test.step('Verify the sign-up invitation text is shown', async () => {
         await expect(detailPage.signUpText).toBeVisible();
       });
     });

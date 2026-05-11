@@ -5,8 +5,6 @@ export class EquitiesSearchPage {
   readonly page:            Page;
   readonly searchInput:     Locator;
   readonly equityRows:      Locator;
-  readonly moreInfoButtons: Locator;
-  readonly noResultsArea:   Locator;
   readonly cookieAcceptBtn: Locator;
 
   constructor(page: Page) {
@@ -14,8 +12,6 @@ export class EquitiesSearchPage {
 
     this.searchInput     = page.getByRole('textbox', { name: 'Enter name, ISIN, or ticker' });
     this.equityRows      = page.getByRole('row').filter({ hasText: UITestData.rowPrefix.equities });
-    this.moreInfoButtons = this.equityRows.getByRole('button');
-    this.noResultsArea   = page.locator('div').filter({ hasText: /^chevron_leftchevron_right$/ });
     this.cookieAcceptBtn = page.getByRole('button', { name: UITestData.cookies.acceptButton });
   }
 
@@ -78,18 +74,13 @@ export class EquitiesSearchPage {
     await this.page.waitForLoadState('networkidle');
   }
 
-  async getResultCount(): Promise<number> {
-    return this.equityRows.count();
-  }
-
   async clickMoreInformationForRow(rowName: string): Promise<void> {
     await this.page.getByRole('row', { name: rowName }).getByRole('button').click();
     await this.page.waitForLoadState('networkidle');
   }
 
   async isResultsEmpty(): Promise<boolean> {
-    const noResults = await this.noResultsArea.isVisible({ timeout: 5000 }).catch(() => false);
-    const count     = await this.equityRows.count();
-    return noResults && count === 0;
+    await this.page.waitForLoadState('networkidle');
+    return (await this.equityRows.count()) === 0;
   }
 }

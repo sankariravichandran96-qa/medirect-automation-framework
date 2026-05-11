@@ -27,7 +27,6 @@ test.describe('Booking CRUD Journey', () => {
     const createRes = await client.createBooking(createdPayload);
     const body      = await createRes.json() as BookingResponse;
     bookingId       = body.bookingid;
-    console.log(`Test booking created — ID: ${bookingId} | Name: ${createdPayload.firstname} ${createdPayload.lastname}`);
   });
 
   test.afterAll(async () => {
@@ -185,7 +184,6 @@ test.describe('Booking CRUD Journey', () => {
 
       await test.step('Verify HTTP 404 — booking no longer exists', async () => {
         expect(response.status()).toBe(TestData.expectedStatus.notFound);
-        console.log(`CRUD cycle complete. Booking ${bookingId} confirmed deleted.`);
       });
     });
 

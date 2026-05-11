@@ -44,14 +44,13 @@ restful-booker-tests/
 │   │   └── Tests/
 │   │       ├── navigation.spec.ts      # Security type tab navigation tests
 │   │       ├── search.spec.ts          # Equity search functionality tests
-│   │       └── security-details.spec.ts# Restricted content visibility tests
+│   │       └── securityDetails.spec.ts # Restricted content visibility tests
 │   └── Common/
 │       ├── config.ts                   # Shared config — baseUrl, credentials (env-overridable)
 │       ├── testData.ts                 # API test data constants
 │       └── uiTestData.ts              # UI test data constants
 ├── playwright.api.config.ts            # Playwright config for API tests
 ├── playwright.ui.config.ts             # Playwright config for UI tests
-├── playwright.config.ts                # Master config — runs both API and UI
 ├── tsconfig.json
 ├── package.json
 └── .gitignore
@@ -130,13 +129,6 @@ npm run test:ui:headed
 npm run test:ui:allure
 ```
 
-### Run Everything
-
-```bash
-npm run test:all
-npm run test:all:allure
-```
-
 ---
 
 ## Reports
@@ -207,8 +199,6 @@ All values are centralised in `src/Common/config.ts` — no magic strings in tes
 | `npm run test:ui` | Run all UI tests (headless) |
 | `npm run test:ui:headed` | Run UI tests in visible browser |
 | `npm run test:ui:allure` | Run UI tests + open Allure report |
-| `npm run test:all` | Run all tests (API + UI) |
-| `npm run test:all:allure` | Run all tests + open Allure report |
 | `npm run report:html` | Open Playwright HTML report |
 | `npm run report:allure` | Generate and open Allure report |
 | `npm run clean` | Delete all generated report and result folders |
@@ -231,9 +221,9 @@ The CRUD tests run in a single chained describe block using `beforeAll` to creat
 
 | File | Tests | What is covered |
 |---|---|---|
-| `navigation.spec.ts` | 5 | Default equities tab load + row count; Equities, Funds, ETFs, Bonds tab navigation |
-| `search.spec.ts` | 3 | Search returns results; More Information navigates to detail page; empty search term returns no results |
-| `security-details.spec.ts` | 4 | Registration banner visible; Overview fields locked; Bottom CTA visible; Price locked behind lock icon |
+| `navigation.spec.ts` | 4 | Default equities tab load + row count; Funds, ETFs, Bonds tab navigation |
+| `search.spec.ts` | 3 | Search returns results; More Information navigates to detail page; non-existent search returns empty list |
+| `securityDetails.spec.ts` | 4 | Registration banner visible; Overview fields locked; Bottom CTA + sign-up text visible; Price locked behind lock icon |
 
 ---
 
@@ -264,8 +254,8 @@ These items were considered but deliberately kept out of scope to avoid over-eng
 - **Search debounce handling** — `EquitiesSearchPage.searchFor()` uses `waitForTimeout(1500)` to account for the site's search debounce. A more robust approach would intercept the outgoing search request via `page.waitForResponse()` and resolve when the response arrives.
 - **Parameterised UI tests** — The four security type tabs (Equities, Funds, ETFs, Bonds) could be driven by a data table to reduce repetition.
 - **Visual regression testing** — Screenshot comparisons for the locked fields and banner UI using Playwright's built-in `toHaveScreenshot()`.
-- **Retry on flake** — Enable `retries: 1` in CI to auto-retry transient network failures against the live test environments.
-- **CI/CD pipeline** — A GitHub Actions workflow to run the API tests on every push and the UI tests on a nightly schedule (covered in Task 4).
+- **Retry on flake** — Enable `retries: 2` in CI to auto-retry transient network failures against the live test environments.
+- **Parallel UI test execution** — Enable cross-browser runs (Chromium, Firefox, WebKit) in CI to catch browser-specific rendering differences earlier.
 
 ---
 

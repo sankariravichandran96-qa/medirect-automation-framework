@@ -43,6 +43,14 @@ jobs:
         if: always()
         run: npx allure generate allure-results --clean -o allure-report
 
+      - name: Upload test results JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-test-results-json
+          path: test-results/results.json
+          retention-days: 7
+
       - name: Upload Playwright HTML report
         if: always()
         uses: actions/upload-artifact@v4
@@ -83,12 +91,21 @@ jobs:
 
       - name: Run UI tests
         env:
+          CI:          'true'
           UI_BASE_URL: https://www.medirect.com.mt
         run: npm run test:ui
 
       - name: Generate Allure report
         if: always()
         run: npx allure generate allure-results --clean -o allure-report
+
+      - name: Upload test results JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-test-results-json
+          path: test-results/results.json
+          retention-days: 7
 
       - name: Upload Playwright HTML report
         if: always()
@@ -114,7 +131,7 @@ jobs:
           path: test-results/
           retention-days: 7
 
-# ── JOB 3: Publish Allure Report to GitHub Pages ──────────────────────────
+  # ── JOB 3: Publish Allure Report to GitHub Pages ──────────────────────────
   publish-allure:
     name: Publish Allure Report
     runs-on: ubuntu-latest
@@ -165,3 +182,141 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
+
+  # ── JOB 4: Email Test Summary ─────────────────────────────────────────────
+  # Sends on: daily schedule, manual trigger, or any test failure on push/PR
+  notify:
+    name: Email Test Summary
+    runs-on: ubuntu-latest
+    needs: [api-tests, ui-tests]
+    if: >
+      always() && (
+        github.event_name == 'schedule' ||
+        github.event_name == 'workflow_dispatch' ||
+        needs.api-tests.result == 'failure' ||
+        needs.ui-tests.result == 'failure'
+      )
+
+    steps:
+      - name: Download API results JSON
+        uses: actions/download-artifact@v4
+        with:
+          name: api-test-results-json
+          path: api-results/
+        continue-on-error: true
+
+      - name: Download UI results JSON
+        uses: actions/download-artifact@v4
+        with:
+          name: ui-test-results-json
+          path: ui-results/
+        continue-on-error: true
+
+      - name: Parse results and build summary
+        id: summary
+        run: |
+          API_PASSED=$(jq '.stats.expected  // 0' api-results/results.json 2>/dev/null || echo 0)
+          API_FAILED=$(jq '.stats.unexpected // 0' api-results/results.json 2>/dev/null || echo 0)
+          API_TOTAL=$((API_PASSED + API_FAILED))
+
+          UI_PASSED=$(jq '.stats.expected  // 0' ui-results/results.json 2>/dev/null || echo 0)
+          UI_FAILED=$(jq '.stats.unexpected // 0' ui-results/results.json 2>/dev/null || echo 0)
+          UI_TOTAL=$((UI_PASSED + UI_FAILED))
+
+          TOTAL_PASSED=$((API_PASSED + UI_PASSED))
+          TOTAL_FAILED=$((API_FAILED + UI_FAILED))
+          TOTAL_ALL=$((API_TOTAL + UI_TOTAL))
+
+          [ "$API_FAILED"    -eq 0 ] && API_STATUS="PASS"     || API_STATUS="FAIL"
+          [ "$UI_FAILED"     -eq 0 ] && UI_STATUS="PASS"      || UI_STATUS="FAIL"
+          [ "$TOTAL_FAILED"  -eq 0 ] && OVERALL="All $TOTAL_ALL tests passed" \
+                                     || OVERALL="$TOTAL_FAILED of $TOTAL_ALL test(s) failed"
+
+          echo "api_passed=$API_PASSED"     >> $GITHUB_OUTPUT
+          echo "api_failed=$API_FAILED"     >> $GITHUB_OUTPUT
+          echo "api_total=$API_TOTAL"       >> $GITHUB_OUTPUT
+          echo "api_status=$API_STATUS"     >> $GITHUB_OUTPUT
+          echo "ui_passed=$UI_PASSED"       >> $GITHUB_OUTPUT
+          echo "ui_failed=$UI_FAILED"       >> $GITHUB_OUTPUT
+          echo "ui_total=$UI_TOTAL"         >> $GITHUB_OUTPUT
+          echo "ui_status=$UI_STATUS"       >> $GITHUB_OUTPUT
+          echo "total_passed=$TOTAL_PASSED" >> $GITHUB_OUTPUT
+          echo "total_failed=$TOTAL_FAILED" >> $GITHUB_OUTPUT
+          echo "total_all=$TOTAL_ALL"       >> $GITHUB_OUTPUT
+          echo "overall=$OVERALL"           >> $GITHUB_OUTPUT
+
+      - name: Send email report
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "Restful Booker Tests — ${{ steps.summary.outputs.total_passed }}/${{ steps.summary.outputs.total_all }} Passed [${{ github.event_name }}]"
+          to: ${{ secrets.EMAIL_RECIPIENT }}
+          from: "Restful Booker CI <${{ secrets.EMAIL_USERNAME }}>"
+          html_body: |
+            <html>
+            <body style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto;padding:20px;">
+
+              <h2 style="color:#333;border-bottom:2px solid #4CAF50;padding-bottom:8px;">
+                Restful Booker — Test Run Report
+              </h2>
+
+              <table style="width:100%;margin-bottom:16px;">
+                <tr><td><strong>Date:</strong></td><td>${{ github.event.repository.updated_at }}</td></tr>
+                <tr><td><strong>Trigger:</strong></td><td>${{ github.event_name }}</td></tr>
+                <tr><td><strong>Branch:</strong></td><td>${{ github.ref_name }}</td></tr>
+                <tr><td><strong>Summary:</strong></td><td><strong>${{ steps.summary.outputs.overall }}</strong></td></tr>
+              </table>
+
+              <table border="1" cellpadding="10" cellspacing="0"
+                     style="border-collapse:collapse;width:100%;margin-bottom:24px;">
+                <thead>
+                  <tr style="background:#4CAF50;color:white;text-align:center;">
+                    <th style="text-align:left;">Test Suite</th>
+                    <th>Total</th>
+                    <th>Passed</th>
+                    <th>Failed</th>
+                    <th>Result</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>API Integration Tests</td>
+                    <td align="center">${{ steps.summary.outputs.api_total }}</td>
+                    <td align="center" style="color:green;font-weight:bold;">${{ steps.summary.outputs.api_passed }}</td>
+                    <td align="center" style="color:${{ steps.summary.outputs.api_failed == '0' && 'green' || 'red' }};font-weight:bold;">${{ steps.summary.outputs.api_failed }}</td>
+                    <td align="center">${{ steps.summary.outputs.api_status == 'PASS' && '&#x2705; PASS' || '&#x274C; FAIL' }}</td>
+                  </tr>
+                  <tr style="background:#f9f9f9;">
+                    <td>UI End-to-End Tests</td>
+                    <td align="center">${{ steps.summary.outputs.ui_total }}</td>
+                    <td align="center" style="color:green;font-weight:bold;">${{ steps.summary.outputs.ui_passed }}</td>
+                    <td align="center" style="color:${{ steps.summary.outputs.ui_failed == '0' && 'green' || 'red' }};font-weight:bold;">${{ steps.summary.outputs.ui_failed }}</td>
+                    <td align="center">${{ steps.summary.outputs.ui_status == 'PASS' && '&#x2705; PASS' || '&#x274C; FAIL' }}</td>
+                  </tr>
+                  <tr style="background:#222;color:white;font-weight:bold;">
+                    <td>TOTAL</td>
+                    <td align="center">${{ steps.summary.outputs.total_all }}</td>
+                    <td align="center" style="color:#90EE90;">${{ steps.summary.outputs.total_passed }}</td>
+                    <td align="center" style="color:#FF6B6B;">${{ steps.summary.outputs.total_failed }}</td>
+                    <td align="center">${{ steps.summary.outputs.total_failed == '0' && '&#x2705; ALL PASS' || '&#x274C; FAILURES' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <p>
+                <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                   style="background:#4CAF50;color:white;padding:12px 24px;text-decoration:none;
+                          border-radius:5px;font-weight:bold;">
+                  View Full Report in GitHub Actions
+                </a>
+              </p>
+
+              <p style="color:#999;font-size:12px;margin-top:32px;">
+                Generated automatically by GitHub Actions &mdash; Restful Booker Test Framework
+              </p>
+            </body>
+            </html>

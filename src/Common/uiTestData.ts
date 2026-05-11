@@ -1,8 +1,7 @@
 export const UITestData = {
 
   urls: {
-    equitiesSearch: '/invest/equities/search/',
-    stocksReports:  '/invest/equities/search/stocksreports/'
+    equitiesSearch: '/invest/equities/search/'
   },
 
   tabs: {
@@ -20,10 +19,7 @@ export const UITestData = {
   },
 
   rowPrefix: {
-    equities: 'EQ',
-    funds:    'FND',
-    etfs:     'ETF',
-    bonds:    'BND'
+    equities: 'EQ'
   },
 
   search: {

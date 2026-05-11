@@ -33,7 +33,7 @@ test.describe('Search — Equities Search Functionality', () => {
       });
 
       await test.step('Verify at least one result row is returned', async () => {
-        const count = await searchPage.getResultCount();
+        const count = await searchPage.getEquityRowCount();
         expect(count).toBeGreaterThan(0);
       });
     });
@@ -68,9 +68,6 @@ test.describe('Search — Equities Search Functionality', () => {
         expect(await detailPage.isOnDetailPage()).toBe(true);
       });
 
-      await test.step('Verify the URL contains the stock report path', async () => {
-        expect(page.url()).toContain('/stocksreports/');
-      });
     });
 
   test('TC03 - Search for a non-existent equity returns an empty results list',

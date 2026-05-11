@@ -1,15 +1,16 @@
 import { Page, Locator } from '@playwright/test';
+import { UITestData } from '../../Common/uiTestData';
 
 export class SecurityDetailPage {
   readonly page: Page;
 
-  // ── Banner (Image 1) ──────────────────────────────────────────────────────
+  // ── Banner ──────────────────────────────────────────────────────
   readonly fullFunctionalityBanner: Locator;
   readonly becomeCustomerButton:    Locator;
   readonly lockedPriceIcon:         Locator;
   readonly backToSearchLink:        Locator;
 
-  // ── Overview section (Image 2) ────────────────────────────────────────────
+  // ── Overview section ────────────────────────────────────────────
   readonly overviewHeading:         Locator;
   readonly lastCloseField:          Locator;
   readonly roeField:                Locator;
@@ -21,7 +22,7 @@ export class SecurityDetailPage {
   readonly netMarginField:          Locator;
   readonly priceSalesField:         Locator;
 
-  // ── Bottom CTA (Image 3) ──────────────────────────────────────────────────
+  // ── Bottom CTA ──────────────────────────────────────────────────
   readonly experienceBetterHeading: Locator;
   readonly becomeClientButton:      Locator;
   readonly signUpText:              Locator;
@@ -29,40 +30,48 @@ export class SecurityDetailPage {
   constructor(page: Page) {
     this.page = page;
 
-    // ── Banner ────────────────────────────────────────────────────────────────
+    // ── Banner ────────────────────────────────────────────────────
     this.fullFunctionalityBanner = page.getByText(
-      'Do you want to start using the full functionality for FREE?'
+      UITestData.restricted.fullFunctionalityText
     );
 
-    // Scoped to the banner section — the same CTA link also appears in the
-    // bottom "Experience better Investing" section, causing a strict-mode
-    // violation if queried page-wide.
     this.becomeCustomerButton = page
       .locator('section')
-      .filter({ hasText: 'Do you want to start using the full functionality for FREE?' })
-      .getByRole('link', { name: /become a customer/i });
+      .filter({ hasText: UITestData.restricted.fullFunctionalityText })
+      .getByRole('link', { name: new RegExp(UITestData.restricted.becomeCustomerBtn, 'i') });
 
-    this.lockedPriceIcon  = page.getByText('+ (+%)');
-    this.backToSearchLink = page.getByRole('link', { name: 'Back to search results' });
+    this.lockedPriceIcon = page.locator('.text-6xl')
+      .getByRole('img', { name: '🔒' });
+    this.backToSearchLink = page.locator('a[href="/invest/equities/search/"]');
 
-    // ── Overview ──────────────────────────────────────────────────────────────
-    this.overviewHeading    = page.getByText('Overview');
-    this.lastCloseField     = page.locator('div').filter({ hasText: /^Last Close$/ });
-    this.roeField           = page.locator('div').filter({ hasText: /^RoE$/ });
-    this.mktCapField        = page.locator('div').filter({ hasText: /^Mkt Cap$/ });
-    this.dividendYieldField = page.locator('div').filter({ hasText: /^Dividend Yield$/ });
-    this.exchangeField      = page.locator('div').filter({ hasText: /^Exchange$/ });
-    this.peField            = page.locator('div').filter({ hasText: /^PE$/ });
-    this.volumeField        = page.locator('div').filter({ hasText: /^Volume$/ });
-    this.netMarginField     = page.locator('div').filter({ hasText: /^Net Margin$/ });
-    this.priceSalesField    = page.locator('div').filter({ hasText: /^Price\/Sales$/ });
+    // ── Overview ──────────────────────────────────────────────────
+    this.overviewHeading = page.getByRole('heading', {
+      name:  UITestData.restricted.overviewHeading,
+      level: 3
+    });
 
-    // ── Bottom CTA ────────────────────────────────────────────────────────────
-    this.experienceBetterHeading = page.getByText('Experience better Investing');
-    this.becomeClientButton      = page.getByRole('link', { name: 'Become a client' });
-    this.signUpText              = page.getByText(
-      'Sign up and open your account for free, within minutes.'
-    );
+    this.lastCloseField     = this.lockedField('Last Close');
+    this.roeField           = this.lockedField('RoE');
+    this.mktCapField        = this.lockedField('Mkt Cap');
+    this.dividendYieldField = this.lockedField('Dividend Yield');
+    this.exchangeField      = this.lockedField('Exchange');
+    this.peField            = this.lockedField('PE');
+    this.volumeField        = this.lockedField('Volume');
+    this.netMarginField     = this.lockedField('Net Margin');
+    this.priceSalesField    = this.lockedField('Price/Sales');
+
+    // ── Bottom CTA ────────────────────────────────────────────────
+    this.experienceBetterHeading = page.getByText(UITestData.restricted.experienceBetterText);
+    this.becomeClientButton      = page.getByRole('link', { name: UITestData.restricted.becomeClientBtn });
+    this.signUpText              = page.getByText(UITestData.restricted.signUpText);
+  }
+
+  private lockedField(label: string): Locator {
+    return this.page
+      .locator('[data-widget_type="assetdetail.default"]')
+      .locator('div[class*="justify-between"]')
+      .filter({ has: this.page.locator('span').filter({ hasText: new RegExp(`^${label}$`) }) })
+      .filter({ has: this.page.getByRole('img', { name: '🔒' }) });
   }
 
   async waitForLoad(): Promise<void> {
