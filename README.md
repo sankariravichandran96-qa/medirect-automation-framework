@@ -65,6 +65,7 @@ restful-booker-tests/
 
 - **Node.js 18+** — [Download](https://nodejs.org/)
 - **Java 11+** — required by Allure CLI to generate and open reports
+- **Visual Studio Code** *(recommended)* — [Download](https://code.visualstudio.com/) with the [Playwright Test for VS Code](https://marketplace.visualstudio.com/items?itemName=ms-playwright.playwright) extension for one-click test running, debugging, and built-in test explorer
 
 ### Installing Java
 
