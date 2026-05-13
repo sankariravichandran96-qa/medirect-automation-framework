@@ -1,5 +1,5 @@
 "BROKEN","EPIC","FAILED","FEATURE","PASSED","SKIPPED","STORY","UNKNOWN"
 "0","","0","","10","0","","0"
-"0","Restful Booker API","0","Auth — Token Generation","1","0","TC02 - Valid credentials yield a non-empty token","0"
 "0","Restful Booker API","0","Auth — Health Check","1","0","TC01 - Ping returns 201 confirming the service is up","0"
+"0","Restful Booker API","0","Auth — Token Generation","1","0","TC02 - Valid credentials yield a non-empty token","0"
 "0","Restful Booker API","0","Auth — Token Generation","1","0","TC13 - Invalid credentials return Bad credentials reason with no token","0"
