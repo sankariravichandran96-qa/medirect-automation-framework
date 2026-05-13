@@ -47,9 +47,24 @@ npm run report:html
 ## Project Structure
 
 ```
-restful-booker-tests/
+medirect-sdet-assignment/
+├── .github/
+│   └── workflows/
+│       └── tests.yml                   # CI/CD pipeline — API, UI, Allure, email
+├── task-1-postman/                      # Task 1 — Postman collection and reports
+│   ├── Restful_Booker_CRUD_Suite.postman_collection.json
+│   ├── Restful-Booker-DEV.postman_environment.json
+│   ├── TestRunReport.json
+│   ├── TestRunReport_Screenshot1.png
+│   ├── TestRunReport_Screenshot2.png
+│   ├── TestRunReport_Screenshot3.png
+│   ├── Task1_Challenges_and_Improvements.docx
+│   └── README.md
+├── task-4-ci-cd/                        # Task 4 — CI/CD pipeline evidence
+│   ├── evidence/                        # Screenshots of pipeline, email, Allure reports
+│   └── README.md
 ├── src/
-│   ├── api/
+│   ├── api/                             # Task 2 — API integration tests
 │   │   ├── clients/
 │   │   │   ├── AuthHelper.ts           # Token acquisition and caching
 │   │   │   ├── BookingClient.ts        # HTTP wrapper — all API calls live here
@@ -59,9 +74,9 @@ restful-booker-tests/
 │   │   └── Tests/
 │   │       ├── auth.spec.ts            # Health check + auth token tests
 │   │       ├── booking.crud.spec.ts    # Full CRUD journey (Create → Read → Update → Delete)
-│   │       ├── booking.negative.spec.ts# Negative / error path tests
+│   │       ├── booking.negative.spec.ts # Negative / error path tests
 │   │       └── bookingClient.unit.spec.ts # Unit tests for BookingClient using Jest + mocks
-│   ├── ui/
+│   ├── ui/                              # Task 3 — UI automation tests
 │   │   ├── pages/
 │   │   │   ├── EquitiesSearchPage.ts   # Page object for the equities search page
 │   │   │   └── SecurityDetailPage.ts   # Page object for the security detail page
@@ -75,6 +90,8 @@ restful-booker-tests/
 │       └── uiTestData.ts              # UI test data constants
 ├── playwright.api.config.ts            # Playwright config for API tests
 ├── playwright.ui.config.ts             # Playwright config for UI tests
+├── babel.config.js                     # Babel config for Jest TypeScript support
+├── test-cases.csv                      # Full test case inventory (all 4 tasks)
 ├── tsconfig.json
 ├── package.json
 └── .gitignore
