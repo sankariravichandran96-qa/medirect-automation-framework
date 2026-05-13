@@ -1,11 +1,29 @@
 # MeDirect SDET Assessment — Task 2, 3 & 4
 
 End-to-end test framework covering:
-- **Task 2** — API integration tests + optional unit tests for the [Restful Booker API](https://restful-booker.herokuapp.com/apidoc/index.html)
+- **Task 2** — API integration and wrapper unit tests for the [Restful Booker API](https://restful-booker.herokuapp.com/apidoc/index.html)
 - **Task 3** — UI automation tests for the [MeDirect Equities Search page](https://www.medirect.com.mt/invest/equities/search)
 - **Task 4** — CI/CD pipeline via GitHub Actions with daily scheduling and Allure report publishing
 
 Built with **Playwright + TypeScript**, **Jest** for unit tests, and **Allure** for rich test reporting.
+
+---
+
+## Quick Start
+
+```bash
+npm install
+npx playwright install chromium
+
+# API tests
+npm run test:api
+
+# UI tests
+npm run test:ui
+
+# Open Playwright report
+npm run report:html
+```
 
 ---
 
@@ -61,6 +79,32 @@ restful-booker-tests/
 
 ---
 
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        Test Specs                           │
+│   auth.spec   crud.spec   navigation.spec   search.spec     │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+              ┌────────────┴────────────┐
+              ▼                         ▼
+   ┌──────────────────┐      ┌──────────────────────┐
+   │    API Layer     │      │       UI Layer        │
+   │  BookingClient   │      │  EquitiesSearchPage   │
+   │  AuthHelper      │      │  SecurityDetailPage   │
+   │  BookingFactory  │      │  (Page Object Model)  │
+   └────────┬─────────┘      └──────────┬────────────┘
+            │                           │
+            ▼                           ▼
+   ┌──────────────────┐      ┌──────────────────────┐
+   │  Restful Booker  │      │   MeDirect Web App   │
+   │       API        │      │  (medirect.com.mt)   │
+   └──────────────────┘      └──────────────────────┘
+```
+
+---
+
 ## Prerequisites
 
 - **Node.js 18+** — [Download](https://nodejs.org/)
@@ -69,34 +113,23 @@ restful-booker-tests/
 
 ### Installing Java
 
-**Windows:**
-1. Download the installer from [adoptium.net](https://adoptium.net/) (Eclipse Temurin — free, LTS)
-2. Run the installer and check **"Set JAVA_HOME variable"** and **"Add to PATH"** during setup
-3. Open a new terminal and verify:
-```bash
-java --version
-```
-You should see output like `openjdk 17.x.x` or similar.
+Download **Eclipse Temurin 17** (free, LTS) from [adoptium.net](https://adoptium.net/). During the Windows installer, check **"Set JAVA_HOME"** and **"Add to PATH"**. On Mac/Linux:
 
-**Mac:**
 ```bash
+# Mac
 brew install openjdk@17
-```
 
-**Linux:**
-```bash
+# Linux
 sudo apt-get install -y openjdk-17-jre
 ```
 
+Verify: `java --version`
+
 ### Installing Allure CLI
 
-Allure is bundled as an npm package — no separate installer needed. It is installed automatically when you run `npm install`. Verify it works after installation:
+Allure is installed automatically via `npm install` — no separate setup needed.
 
-```bash
-npx allure --version
-```
-
-You should see a version number such as `2.40.0`. If you see an error, Java is not on your PATH — revisit the Java installation step above.
+Verify: `npx allure --version` — if this errors, Java is not on your PATH.
 
 ---
 
@@ -115,23 +148,18 @@ cd restful-booker-tests
 npm install
 ```
 
-This installs Playwright, TypeScript, Allure, and all other dependencies listed in `package.json`.
-
 ### 3 — Install Playwright browsers (required for UI tests)
 
 ```bash
 npx playwright install chromium
 ```
 
-### 4 — Verify the full setup
-
-Run all four checks before running tests:
+### 4 — Verify the setup
 
 ```bash
-node --version       # should be 18 or higher
-npm --version        # any recent version
-java --version       # should be 11 or higher
-npx allure --version # should show 2.x.x
+node --version       # 18 or higher
+java --version       # 11 or higher
+npx allure --version # 2.x.x
 ```
 
 ---
@@ -161,7 +189,7 @@ npm run test:ui:headed
 npm run test:ui:allure
 ```
 
-### Unit Tests — BookingClient (Task 2, optional)
+### Unit Tests — BookingClient (Task 2)
 
 The `BookingClient` wrapper is covered by unit tests using **Jest** with mocked HTTP
 responses — no real network calls are made.
@@ -264,7 +292,7 @@ All values are centralised in `src/Common/config.ts` — no magic strings in tes
 
 The CRUD tests run in a single chained describe block using `beforeAll` to create one shared booking — mirroring the Postman collection runner approach from Task 1.
 
-### Unit Tests — BookingClient (Task 2, optional)
+### Unit Tests — BookingClient (Task 2)
 
 | File | Tests | What is covered |
 |---|---|---|
@@ -311,7 +339,7 @@ Push / PR / Schedule / Manual
 |---|---|
 | `push` | Every commit pushed to `main` |
 | `pull_request` | Every PR opened or updated against `main` |
-| `schedule` | Every day at **14:00 UTC** (16:00 CEST) automatically |
+| `schedule` | Every day at **22:30 UTC** (00:30 CEST / 12:30 AM CEST) automatically |
 | `workflow_dispatch` | On-demand manual run from the GitHub Actions tab |
 
 ### Jobs
@@ -375,24 +403,24 @@ test failure. To enable it, add the following three secrets under
 
 | Decision | Reason |
 |---|---|
-| `BookingClient` wraps all HTTP calls | Tests never call `request.get/post` directly — clean separation of concerns |
-| `AuthHelper` caches the token per context | No repeated auth requests — efficient and mirrors real-world SDK patterns |
-| `BookingFactory` generates unique names via `Date.now()` | Guaranteed unique data on every run — matches Postman's random data strategy |
-| `beforeAll` creates one shared booking for CRUD tests | Tests chain on the same record — mirrors the Postman collection runner approach |
-| `afterAll` cleans up test data on every describe | No orphaned records left in the API between runs |
-| Page Object Model for all UI interactions | Locators and actions are defined once and reused — changes to the UI only require updates in one place |
-| `test.step()` wraps every assertion | Allure shows plain-English steps readable by non-technical stakeholders |
-| `test.describe.configure({ mode: 'serial' })` on UI suites | UI tests that navigate across steps must run in order |
-| `workers: 1` in API config | CRUD tests share booking state — parallel execution would cause race conditions |
-| Allure metadata via `allure-js-commons` | Uses the non-deprecated API — `epic()`, `feature()`, `story()`, `severity()` called as plain functions |
-| Separate `playwright.api.config.ts` and `playwright.ui.config.ts` | API and UI suites can be run independently with their own base URLs and browser settings |
-| All test data in `src/Common/` | Single source of truth — no magic values scattered across test files |
+| `BookingClient` wraps all HTTP calls | Tests focus on behaviour — HTTP mechanics stay in one place and are easy to update |
+| `AuthHelper` caches the token per context | Avoids a redundant auth call before every test that needs a token |
+| `BookingFactory` generates unique names via `Date.now()` | Prevents ID collisions between parallel or repeated runs |
+| `beforeAll` creates one shared booking for CRUD tests | All CRUD steps operate on the same record — consistent with the Postman collection approach from Task 1 |
+| `afterAll` cleans up test data on every describe | Keeps the API clean between runs — no leftover test records accumulate |
+| Page Object Model for all UI interactions | Locators live in one file — if the UI changes, only the page object needs updating |
+| `test.step()` wraps every assertion | Allure report shows readable step names that a non-technical reviewer can follow |
+| `test.describe.configure({ mode: 'serial' })` on UI suites | Tests that navigate across pages depend on order — serial mode enforces this |
+| `workers: 1` in API config | CRUD tests share a booking ID across steps — running them in parallel would cause race conditions |
+| Allure metadata via `allure-js-commons` | Uses the current non-deprecated API — `epic()`, `feature()`, `story()` called as plain async functions |
+| Separate `playwright.api.config.ts` and `playwright.ui.config.ts` | API and UI suites have different base URLs and timeouts — keeping configs separate avoids cross-contamination |
+| All test data in `src/Common/` | One place to update values — no hardcoded strings scattered across test files |
 
 ---
 
 ## Proposed Improvements
 
-These items were considered but deliberately kept out of scope to avoid over-engineering the assessment solution. They represent natural next steps for a production framework:
+Natural next steps for a production version of this framework:
 
 - **Tag-based test selection** — Add `@smoke` and `@regression` tags to enable selective CI runs (e.g. `--grep @smoke` for a quick sanity check on every PR, full regression nightly). Tags were omitted here to keep the test signatures clean for readability.
 - **Search debounce handling** — `EquitiesSearchPage.searchFor()` uses `waitForTimeout(1500)` to account for the site's search debounce. A more robust approach would intercept the outgoing search request via `page.waitForResponse()` and resolve when the response arrives — eliminating the fixed wait and making tests faster and more reliable.
