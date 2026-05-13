@@ -158,8 +158,7 @@ Verify: `npx allure --version` — if this errors, Java is not on your PATH.
 ### 1 — Clone the repository
 
 ```bash
-git clone <your-repo-url>
-cd restful-booker-tests
+git clone https://github.com/sankariravichandran96-qa/medirect-automation-framework.git
 ```
 
 ### 2 — Install dependencies
@@ -220,8 +219,7 @@ npm run test:unit
 
 > **Note:** Unit tests run locally only. They are intentionally excluded from the CI
 > pipeline to keep the pipeline focused on integration and E2E tests against the live
-> environments. This is a deliberate SDET decision — unit tests validate the wrapper
-> logic in isolation; integration tests validate the real API behaviour.
+> environments.
 
 ---
 
@@ -448,4 +446,4 @@ Natural next steps for a production version of this framework:
 - **Visual regression testing** — Screenshot comparisons for the locked fields and registration banner using Playwright's built-in `toHaveScreenshot()`, so any unintended UI change is caught automatically.
 - **Retry on flake** — Enable `retries: 2` in CI to auto-retry transient network failures against the live test environments without marking a test as failed on the first timeout.
 - **Cross-browser coverage** — Extend the UI suite to run against Firefox and WebKit in CI (in addition to Chromium) to catch browser-specific rendering or behaviour differences earlier in the pipeline.
-
+- **Parallel execution with isolated test data** — Increase CI speed by running independent tests in parallel once shared-state flows are separated. For example, CRUD journey tests currently run serially because they reuse the same booking record, but independent API negative tests and UI search scenarios could be parallelised using isolated test data and separate browser contexts.
