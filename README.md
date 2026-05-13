@@ -371,12 +371,12 @@ Every run uploads the following artifacts (retained for 30 days):
 
 The latest Allure reports are published automatically to GitHub Pages after every run:
 
-**[https://sankariravichandran96-qa.github.io/restful-booker-tests/](https://sankariravichandran96-qa.github.io/restful-booker-tests/)**
+**[https://sankariravichandran96-qa.github.io/medirect-automation-framework/](https://sankariravichandran96-qa.github.io/medirect-automation-framework/)**
 
 | Report | Direct link |
 |---|---|
-| API Tests | [/api/index.html](https://sankariravichandran96-qa.github.io/restful-booker-tests/api/index.html) |
-| UI Tests | [/ui/index.html](https://sankariravichandran96-qa.github.io/restful-booker-tests/ui/index.html) |
+| API Tests | [/api/index.html](https://sankariravichandran96-qa.github.io/medirect-automation-framework/api/index.html) |
+| UI Tests | [/ui/index.html](https://sankariravichandran96-qa.github.io/medirect-automation-framework/ui/index.html) |
 
 ### Running the Pipeline Manually
 

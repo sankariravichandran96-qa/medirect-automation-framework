@@ -1,4 +1,4 @@
-name: Restful Booker - API & UI Tests
+name: MeDirect SDET - API & UI Tests
 
 on:
   push:

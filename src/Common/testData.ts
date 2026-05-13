@@ -22,8 +22,10 @@ export const TestData = {
   },
 
   negative: {
-    nonExistentId:  999999999,
-    invalidPayload: { firstname: 'OnlyName' }
+    nonExistentId:   999999999,
+    invalidPayload:  { firstname: 'OnlyName' },
+    invalidUsername: 'wronguser',
+    invalidPassword: 'wrongpassword'
   },
 
   expectedStatus: {
