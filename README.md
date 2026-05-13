@@ -1,7 +1,10 @@
-# MeDirect SDET Assessment — Task 2, 3 & 4
+# MeDirect SDET Assessment — Task 1, 2, 3 & 4
 
-End-to-end test framework covering:
-- **Task 2** — API integration and wrapper unit tests for the [Restful Booker API](https://restful-booker.herokuapp.com/apidoc/index.html)
+![CI](https://github.com/sankariravichandran96-qa/medirect-automation-framework/actions/workflows/tests.yml/badge.svg)
+
+End-to-end test framework covering all four assessment tasks:
+- **Task 1** — Postman collection for the [Restful Booker API](https://restful-booker.herokuapp.com/apidoc/index.html) with CRUD chain, token handling and Newman run report
+- **Task 2** — API integration and wrapper unit tests using Playwright + TypeScript
 - **Task 3** — UI automation tests for the [MeDirect Equities Search page](https://www.medirect.com.mt/invest/equities/search)
 - **Task 4** — CI/CD pipeline via GitHub Actions with daily scheduling and Allure report publishing
 
