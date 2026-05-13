@@ -152,4 +152,69 @@ test.describe('Security Details are Restricted Content for Public Users', () => 
       });
     });
 
+  test('TC06 - Clicking Back to search results navigates back to the equities search page',
+    async ({ page }) => {
+      await epic('MeDirect Equities Platform');
+      await feature('Security Detail Page — Restricted Access');
+      await story('TC06 - Back to search results link returns user to the equities search page');
+      await severity('normal');
+      await label('priority', 'P2');
+      await description(
+        'From a security detail page, clicking the "Back to search results" link must ' +
+        'navigate the user back to the equities search page. The URL must contain ' +
+        '/invest/equities/search/ after the click.'
+      );
+
+      await test.step('Verify the "Back to search results" link is visible on the detail page', async () => {
+        await expect(detailPage.backToSearchLink).toBeVisible();
+      });
+
+      await test.step('Click the "Back to search results" link', async () => {
+        await detailPage.clickBackToSearch();
+      });
+
+      await test.step('Verify the URL has changed back to the equities search page', async () => {
+        expect(page.url()).toContain(UITestData.urlContains.equities);
+      });
+    });
+
+  test('TC05 - Direct URL navigation to security details still shows restriction for public users',
+    async ({ page }) => {
+      await epic('MeDirect Equities Platform');
+      await feature('Security Detail Page — Restricted Access');
+      await story('TC05 - Direct URL access enforces restriction regardless of navigation path');
+      await severity('critical');
+      await label('priority', 'P1');
+      await description(
+        'A public user who navigates directly to a security detail URL (e.g. via a bookmarked ' +
+        'or shared link, bypassing the search flow) must still see the registration banner. ' +
+        'Restriction must be enforced regardless of how the page is reached.'
+      );
+
+      let directUrl = '';
+
+      await test.step('Capture the direct URL of the currently loaded security detail page', async () => {
+        directUrl = page.url();
+        expect(directUrl).toContain('/stocksreports/');
+      });
+
+      await test.step('Navigate away to simulate a fresh browser session', async () => {
+        await searchPage.navigate();
+      });
+
+      await test.step('Navigate directly to the security detail URL without going through search', async () => {
+        await page.goto(directUrl);
+        await detailPage.waitForLoad();
+      });
+
+      await test.step('Verify the registration banner is still visible on direct URL access', async () => {
+        const visible = await detailPage.isFunctionalityBannerVisible();
+        expect(visible).toBe(true);
+      });
+
+      await test.step('Verify the "Become a customer" button is still shown on direct access', async () => {
+        await expect(detailPage.becomeCustomerButton).toBeVisible();
+      });
+    });
+
 });

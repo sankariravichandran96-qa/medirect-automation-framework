@@ -23,9 +23,14 @@ export const UITestData = {
   },
 
   search: {
-    popularEquity:     'Apple',
-    popularEquityRow:  'EQ APPLE INC TECHNOLOGY NMS',
-    nonExistentEquity: 'XYZABCD1234NOTREAL'
+    popularEquity:      'Apple',
+    popularEquityLower: 'apple',
+    popularEquityUpper: 'APPLE',
+    popularEquityRow:   'EQ APPLE INC TECHNOLOGY NMS',
+    nonExistentEquity:  'XYZABCD1234NOTREAL',
+    partialEquity:      'Tes',
+    specialChars:       '@#$%^&',
+    alternateEquity:    'Microsoft'
   },
 
   restricted: {

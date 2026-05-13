@@ -257,7 +257,7 @@ All values are centralised in `src/Common/config.ts` — no magic strings in tes
 
 | File | Tests | What is covered |
 |---|---|---|
-| `auth.spec.ts` | 2 | Health check (ping), valid credentials return a token |
+| `auth.spec.ts` | 3 | Health check (ping), valid credentials return a token, invalid credentials return Bad credentials |
 | `booking.crud.spec.ts` | 7 | Create → Get → List → PUT → PATCH → Delete → Confirm deleted |
 | `booking.negative.spec.ts` | 3 | Non-existent ID (404), unauthorised delete (403), malformed payload (500) |
 
@@ -277,8 +277,8 @@ correctly (correct URLs, headers, token injection) without hitting the live API.
 | File | Tests | What is covered |
 |---|---|---|
 | `navigation.spec.ts` | 4 | Default equities tab load + row count; Funds, ETFs, Bonds tab navigation |
-| `search.spec.ts` | 3 | Search returns results; More Information navigates to detail page; non-existent search returns empty list |
-| `securityDetails.spec.ts` | 4 | Registration banner visible; Overview fields locked; Bottom CTA + sign-up text visible; Price locked behind lock icon |
+| `search.spec.ts` | 7 | Search returns results; More Information navigates; non-existent search empty; case-insensitive search; partial name search; special character search; dynamic results update when term changes |
+| `securityDetails.spec.ts` | 6 | Registration banner; Overview fields locked; Bottom CTA + sign-up text; Price lock icon; Back to search results click navigates back; Direct URL access still restricted |
 
 ---
 

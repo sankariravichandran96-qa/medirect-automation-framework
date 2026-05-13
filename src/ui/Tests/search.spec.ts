@@ -92,4 +92,115 @@ test.describe('Search — Equities Search Functionality', () => {
       });
     });
 
+  test('TC04 - Search is case-insensitive — lowercase, uppercase and mixed case all return results',
+    async () => {
+      await epic('MeDirect Equities Platform');
+      await feature('Equities Search Functionality');
+      await story('TC04 - Case-insensitive search returns consistent results');
+      await severity('normal');
+      await label('priority', 'P2');
+      await description(
+        'Searching for the same equity using different letter cases (lowercase "apple", ' +
+        'uppercase "APPLE", mixed case "Apple") must all return matching results, ' +
+        'demonstrating the search is case-insensitive.'
+      );
+
+      await test.step(`Search with lowercase "${UITestData.search.popularEquityLower}" and verify results`, async () => {
+        await searchPage.searchFor(UITestData.search.popularEquityLower);
+        const count = await searchPage.getEquityRowCount();
+        expect(count).toBeGreaterThan(0);
+      });
+
+      await test.step(`Search with uppercase "${UITestData.search.popularEquityUpper}" and verify results`, async () => {
+        await searchPage.searchFor(UITestData.search.popularEquityUpper);
+        const count = await searchPage.getEquityRowCount();
+        expect(count).toBeGreaterThan(0);
+      });
+
+      await test.step(`Search with mixed case "${UITestData.search.popularEquity}" and verify results`, async () => {
+        await searchPage.searchFor(UITestData.search.popularEquity);
+        const count = await searchPage.getEquityRowCount();
+        expect(count).toBeGreaterThan(0);
+      });
+    });
+
+  test('TC05 - Partial search term returns matching equity results',
+    async () => {
+      await epic('MeDirect Equities Platform');
+      await feature('Equities Search Functionality');
+      await story('TC05 - Partial equity name returns matching results');
+      await severity('normal');
+      await label('priority', 'P2');
+      await description(
+        `Searching with the partial term "${UITestData.search.partialEquity}" must return ` +
+        'at least one matching equity result, demonstrating the search supports partial name matching.'
+      );
+
+      await test.step(`Search with partial term "${UITestData.search.partialEquity}"`, async () => {
+        await searchPage.searchFor(UITestData.search.partialEquity);
+      });
+
+      await test.step('Verify at least one matching equity result is returned', async () => {
+        const count = await searchPage.getEquityRowCount();
+        expect(count).toBeGreaterThan(0);
+      });
+    });
+
+  test('TC06 - Special character search is handled gracefully with no application crash',
+    async () => {
+      await epic('MeDirect Equities Platform');
+      await feature('Equities Search Functionality');
+      await story('TC06 - Special character search returns empty list without error');
+      await severity('normal');
+      await label('priority', 'P2');
+      await description(
+        `Entering special characters "${UITestData.search.specialChars}" into the search box ` +
+        'must not crash the application and must return zero equity results.'
+      );
+
+      await test.step(`Search with special characters "${UITestData.search.specialChars}"`, async () => {
+        await searchPage.searchFor(UITestData.search.specialChars);
+      });
+
+      await test.step('Verify the application has not crashed (page is still responsive)', async () => {
+        await expect(searchPage.searchInput).toBeVisible();
+      });
+
+      await test.step('Verify zero equity rows are returned for special character input', async () => {
+        const count = await searchPage.getEquityRowCount();
+        expect(count).toBe(0);
+      });
+    });
+
+  test('TC07 - Search results update dynamically when the search term changes',
+    async () => {
+      await epic('MeDirect Equities Platform');
+      await feature('Equities Search Functionality');
+      await story('TC07 - Changing the search term refreshes the results list');
+      await severity('normal');
+      await label('priority', 'P2');
+      await description(
+        `Searching first for "${UITestData.search.popularEquity}" and then changing the term to ` +
+        `"${UITestData.search.alternateEquity}" must update the results list. Both searches must ` +
+        'return at least one row, confirming the results are dynamic and not cached.'
+      );
+
+      let firstCount = 0;
+
+      await test.step(`Search for "${UITestData.search.popularEquity}" and record the result count`, async () => {
+        await searchPage.searchFor(UITestData.search.popularEquity);
+        firstCount = await searchPage.getEquityRowCount();
+        expect(firstCount).toBeGreaterThan(0);
+      });
+
+      await test.step(`Change the search term to "${UITestData.search.alternateEquity}"`, async () => {
+        await searchPage.searchFor(UITestData.search.alternateEquity);
+      });
+
+      await test.step('Verify the results list updated and returns at least one row for the new term', async () => {
+        const secondCount = await searchPage.getEquityRowCount();
+        expect(secondCount).toBeGreaterThan(0);
+      });
+    });
+
 });

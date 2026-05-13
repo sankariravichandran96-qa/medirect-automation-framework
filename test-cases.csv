@@ -49,3 +49,24 @@ TC-UI-10,UI - Security Details,Positive,P2,Bottom CTA section shows sign-up prom
 4. Verify the sign-up invitation text is visible","Experience better Investing heading is visible; Become a client button is visible; Sign up and open your account for free within minutes text is visible",Automated
 TC-UI-11,UI - Security Details,Positive,P1,Price area shows a lock icon instead of live data and back-navigation link is available,Security detail page is loaded and user is not logged in,"1. Check for the lock icon in the price and percentage area
 2. Check for the Back to search results link","Lock icon is visible in the price area; Back to search results link pointing to /invest/equities/search/ is visible",Automated
+TC-UI-12,UI - Search,Positive,P2,Search is case-insensitive — lowercase and uppercase return the same results,Equities search page is loaded,"1. Type apple (lowercase) and verify results
+2. Type APPLE (uppercase) and verify results
+3. Type Apple (mixed case) and verify results","All three searches return at least one matching EQ row; result count is greater than zero for each variant",Automated
+TC-UI-13,UI - Search,Positive,P2,Partial equity name search returns matching results,Equities search page is loaded,"1. Type the partial term Tes into the search box
+2. Wait for results to load","At least one matching equity row is returned (e.g. Tesla); partial name matching is supported",Automated
+TC-UI-14,UI - Search,Negative,P2,Special character search is handled gracefully with no application crash,Equities search page is loaded,"1. Type @#$%^& into the search box
+2. Wait for results to load
+3. Verify the search input is still visible and responsive","Zero EQ rows are returned; the application has not crashed; the search input remains visible and usable",Automated
+TC-UI-15,UI - Security Details,Positive,P1,Direct URL navigation to security details still shows restriction for public users,User is not logged in,"1. Navigate via search to the Apple INC security detail page
+2. Copy the full URL from the browser address bar
+3. Navigate away to the equities search page
+4. Paste and navigate directly to the copied URL
+5. Wait for the page to load","The registration banner is visible on direct URL access; the Become a customer button is shown; restriction is enforced regardless of navigation path",Automated
+TC-API-13,API - Auth,Negative,P2,Invalid credentials return a Bad credentials error with no token issued,API is reachable,"1. POST /auth with username=wronguser and password=wrongpassword
+2. Parse the response body","HTTP 200; response body contains a reason field with value Bad credentials; response body does NOT contain a token field",Automated
+TC-UI-16,UI - Security Details,Positive,P2,Clicking Back to search results navigates back to the equities search page,Security detail page is loaded,"1. Verify the Back to search results link is visible on the detail page
+2. Click the Back to search results link
+3. Wait for navigation to complete","URL changes to contain /invest/equities/search/; user is returned to the equities search page",Automated
+TC-UI-17,UI - Search,Positive,P2,Search results update dynamically when the search term changes,Equities search page is loaded,"1. Type Apple into the search box and record the result count
+2. Clear the search input and type Microsoft
+3. Wait for the new results to load","Both searches return at least one matching EQ row; the results list updates dynamically when the search term changes",Automated

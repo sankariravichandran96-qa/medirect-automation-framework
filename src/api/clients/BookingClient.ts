@@ -21,6 +21,12 @@ export class BookingClient {
     return this.authHelper.getToken();
   }
 
+  async postAuth(username: string, password: string): Promise<APIResponse> {
+    return this.request.post('/auth', {
+      data: { username, password }
+    });
+  }
+
   // ── Booking CRUD ──────────────────────────────────────────────────────────
   async createBooking(booking: Booking): Promise<APIResponse> {
     return this.request.post('/booking', { data: booking });

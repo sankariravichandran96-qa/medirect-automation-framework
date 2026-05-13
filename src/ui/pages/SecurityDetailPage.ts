@@ -103,4 +103,10 @@ export class SecurityDetailPage {
     await this.page.waitForLoadState('networkidle');
     await this.experienceBetterHeading.waitFor({ state: 'visible', timeout: 10000 });
   }
+
+  async clickBackToSearch(): Promise<void> {
+    await this.backToSearchLink.scrollIntoViewIfNeeded();
+    await this.backToSearchLink.click();
+    await this.page.waitForLoadState('networkidle');
+  }
 }
